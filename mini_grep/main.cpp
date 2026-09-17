@@ -25,36 +25,63 @@ int ci_find_substr( const T& str1, const T& str2, const std::locale& loc = std::
     else return -1; // not found
 }
 
-int main(int argc, char* argv[]){
+void searchFile(const string& filename, const string& searchTerm, bool count){
+    // string filename = argv[i];
+    ifstream file(filename);
 
-    if(argc != 3){
-        cerr << "you have to insert arguments" << endl;
-        return 1;
+    if (!file) {
+        cerr << "Could not open: " << filename << endl;
+        // continue;
     }
-    cout << "you have entered " << argc << " arguments:" << endl;
-
-    int i = 0;
-    while(i < argc){
-        cout << "argument " << i+1 << ": " <<argv[i] << endl;
-        i++;
-    }
-    string searchTerm = argv[1];
-    std::ifstream file(argv[2]);
-
-    cout << "searching for: " << searchTerm << endl;
 
     string line;
     size_t lineNumber = 0;
+    size_t matchCount = 0;
 
-    while(getline(file, line)){
+    while (getline(file, line)) {
         lineNumber++;
-        size_t position = ci_find_substr(line, searchTerm);
 
-        if(position != -1){
-            cout << "Line " << lineNumber
-                << ", position " << position
-            << ": " << searchTerm << endl;
+        int position = ci_find_substr(line, searchTerm);
+
+        if (position != -1) {
+            matchCount++;
+
+            if (!count) {
+                cout << filename
+                     << ":" << lineNumber
+                     << ":" << position
+                     << ": " << searchTerm << endl;
+            }
         }
     }
-    return 0;
+
+    if (count) {
+        cout << filename << ": " << matchCount << endl;
+    }
+}
+
+int main(int argc, char* argv[]) {
+
+    if (argc < 3) {
+        cerr << "Usage: minigrep <search-term> <file> [file ...] [--count]" << endl;
+        return 1;
+    }
+
+    string searchTerm = argv[1];
+
+    bool count = false;
+
+    for (int i = 2; i < argc; i++) {
+        if (string(argv[i]) == "--count") {
+            count = true;
+        }
+    }
+
+    for (int i = 2; i < argc; i++) {
+
+        if (string(argv[i]) == "--count") {
+            continue;
+        }
+        searchFile(argv[i], searchTerm, count);
+    }
 }
