@@ -8,3 +8,5 @@ ok
 hehe
 lol
 hello
+HELLO
+HeLlO
